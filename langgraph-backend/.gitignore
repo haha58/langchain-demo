@@ -1,0 +1,28 @@
+# 依赖
+node_modules/
+.pnpm-store/
+
+# 构建产物
+dist/
+build/
+
+# 环境变量（本地配置，不提交）
+.env
+.env.local
+.env.production
+
+# 日志
+*.log
+npm-debug.log*
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+
+# TypeScript 增量编译缓存
+*.tsbuildinfo

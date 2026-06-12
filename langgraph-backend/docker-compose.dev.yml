@@ -1,0 +1,37 @@
+version: '3.9'
+
+# 本地开发专用：只启动 Ollama，NestJS 用 npm run start:dev 热重载
+# 用法：docker compose -f docker-compose.dev.yml up
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: langgraph-ollama-dev
+    ports:
+      - '11434:11434'
+    volumes:
+      - ollama_data:/root/.ollama
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:11434/api/tags']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  ollama-init:
+    image: ollama/ollama:latest
+    depends_on:
+      ollama:
+        condition: service_healthy
+    entrypoint: >
+      sh -c "
+        OLLAMA_HOST=http://ollama:11434 ollama pull qwen3.5:0.8b &&
+        echo '模型就绪！'
+      "
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    restart: 'no'
+
+volumes:
+  ollama_data:

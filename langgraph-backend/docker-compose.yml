@@ -1,0 +1,71 @@
+version: '3.9'
+
+services:
+  # ── NestJS 后端 ───────────────────────────────────
+  app:
+    build:
+      context: .
+      target: runner       # 使用生产阶段镜像
+    container_name: langgraph-nest
+    ports:
+      - '3000:3000'
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      # 容器内访问 ollama 服务，用 service 名
+      OLLAMA_BASE_URL: http://ollama:11434/v1
+      LANGGRAPH_MODEL: qwen3.5:0.8b
+      OLLAMA_API_KEY: ollama
+      ALLOWED_ORIGINS: http://localhost:5173,http://localhost:3001
+    depends_on:
+      ollama:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - langgraph-net
+
+  # ── Ollama 本地模型服务 ───────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: langgraph-ollama
+    ports:
+      - '11434:11434'
+    volumes:
+      # 模型文件持久化，避免每次重启重新下载
+      - ollama_data:/root/.ollama
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:11434/api/tags']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - langgraph-net
+
+  # ── 模型初始化（一次性任务）──────────────────────
+  # 首次启动时自动拉取模型，之后由于 volume 缓存会跳过
+  ollama-init:
+    image: ollama/ollama:latest
+    container_name: langgraph-ollama-init
+    depends_on:
+      ollama:
+        condition: service_healthy
+    entrypoint: >
+      sh -c "
+        echo '正在检查/拉取模型 qwen3.5:0.8b ...' &&
+        ollama pull qwen3.5:0.8b &&
+        echo '模型就绪！'
+      "
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    networks:
+      - langgraph-net
+    restart: 'no'          # 只运行一次
+
+volumes:
+  ollama_data:             # 模型文件持久化存储
+
+networks:
+  langgraph-net:
+    driver: bridge
