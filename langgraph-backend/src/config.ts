@@ -1,7 +1,7 @@
 /**
  * 统一配置文件
  *
- * 本地开发：设置 OLLAMA_BASE_URL=http://localhost:11434/v1，模型用 qwen3.5:0.8b
+ * 本地开发：设置 OLLAMA_BASE_URL=http://localhost:11434/v1，模型用 qwen3:8b
  * 生产环境：切换为云端 API（DeepSeek / OpenAI 等），只需改 .env，代码不动
  */
 export const config = {
@@ -12,10 +12,10 @@ export const config = {
 
   langGraph: {
     // 模型名称
-    // 本地：qwen3.5:0.8b | qwen3:4b
+    // 本地：qwen3:8b | qwen3:4b
     // 云端：deepseek-chat | gpt-4o-mini 等
-    model: 'qwen3.5:0.8b',
-    //  model: process.env.LANGGRAPH_MODEL || 'qwen3.5:0.8b',
+    model: 'qwen3:8b',
+    //  model: process.env.LANGGRAPH_MODEL || 'qwen3:8b',
     // API BaseURL
     // 本地 Ollama：http://localhost:11434/v1
     // DeepSeek：   https://api.deepseek.com/v1

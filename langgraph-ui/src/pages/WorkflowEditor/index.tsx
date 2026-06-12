@@ -198,7 +198,7 @@ const initNodes: Node[] = [
       nodeType:     'llm',
       label:        'LLM 调用',
       desc:         '接收 HTTP 响应，交给大模型分析',
-      model:        'qwen3.5:0.8b',
+      model:        'qwen3:8b',
       temperature:  0.7,
       // state.output 此时是 HTTP 节点的 JSON 字符串，下面提示词告诉模型如何使用
       systemPrompt: '你是专业的 AI 助手。用户会给你一段接口返回的 JSON 数据，请用中文简洁解释这段数据的含义。',

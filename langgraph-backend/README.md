@@ -6,7 +6,7 @@ LangGraph + NestJS 实战后端，对应 LangGraph 实操手册文档 1-5。
 
 - **NestJS 11** — 后端框架
 - **@langchain/langgraph 1.2.x** — AI 工作流编排
-- **Ollama** — 本地大模型服务（qwen3.5:0.8b）
+- **Ollama** — 本地大模型服务（qwen3:8b）
 - **Docker** — 容器化部署
 - **GitHub Actions** — CI/CD 自动化
 - **Vercel** — 云端部署
@@ -28,7 +28,7 @@ brew install ollama
 ollama serve
 
 # 3. 拉取模型
-ollama pull qwen3.5:0.8b
+ollama pull qwen3:8b
 
 # 4. 克隆项目，安装依赖
 git clone https://github.com/你的用户名/langgraph-nest.git
@@ -50,7 +50,7 @@ npm run start:dev
 ### 方式二：Docker Compose 一键启动（含 Ollama）
 
 ```bash
-# 首次启动（自动拉取 qwen3.5:0.8b，约 600MB，需要等待）
+# 首次启动（自动拉取 qwen3:8b，约 600MB，需要等待）
 docker compose up -d
 
 # 查看日志
@@ -83,7 +83,7 @@ npm run start:dev
 | 变量名 | 说明 | 默认值 |
 |--------|------|--------|
 | `PORT` | 服务端口 | `3000` |
-| `LANGGRAPH_MODEL` | 使用的 LLM 模型 | `qwen3.5:0.8b` |
+| `LANGGRAPH_MODEL` | 使用的 LLM 模型 | `qwen3:8b` |
 | `OLLAMA_BASE_URL` | Ollama/云端 API 地址 | `http://localhost:11434/v1` |
 | `OLLAMA_API_KEY` | API Key（本地 Ollama 填 `ollama`）| `ollama` |
 | `ALLOWED_ORIGINS` | 允许跨域的前端地址 | `http://localhost:5173` |
@@ -244,7 +244,7 @@ langgraph-nest/
 A：确认 Ollama 已启动（`ollama serve`），或 `docker compose up ollama` 单独启动。
 
 **Q：模型响应慢**
-A：`qwen3.5:0.8b` 首次调用需要加载模型（5-15秒），之后会快很多。内存不足时换更小的模型或使用云端 API。
+A：`qwen3:8b` 首次调用需要加载模型（5-15秒），之后会快很多。内存不足时换更小的模型或使用云端 API。
 
 **Q：工具调用不稳定**
 A：升级 Ollama 到 ≥ 0.17.5。如仍不稳定，在 `.env` 改 `LANGGRAPH_MODEL=qwen3:4b`。

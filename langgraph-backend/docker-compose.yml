@@ -14,7 +14,7 @@ services:
       PORT: 3000
       # 容器内访问 ollama 服务，用 service 名
       OLLAMA_BASE_URL: http://ollama:11434/v1
-      LANGGRAPH_MODEL: qwen3.5:0.8b
+      LANGGRAPH_MODEL: qwen3:8b
       OLLAMA_API_KEY: ollama
       ALLOWED_ORIGINS: http://localhost:5173,http://localhost:3001
     depends_on:
@@ -53,8 +53,8 @@ services:
         condition: service_healthy
     entrypoint: >
       sh -c "
-        echo '正在检查/拉取模型 qwen3.5:0.8b ...' &&
-        ollama pull qwen3.5:0.8b &&
+        echo '正在检查/拉取模型 qwen3:8b ...' &&
+        ollama pull qwen3:8b &&
         echo '模型就绪！'
       "
     environment:
