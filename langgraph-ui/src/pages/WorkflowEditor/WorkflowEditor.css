@@ -1,0 +1,379 @@
+/* ─────────────── 根布局 ─────────────── */
+.wf-root {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background: #f5f6f8;
+}
+
+/* ─────────────── 左侧节点库 ─────────────── */
+.wf-palette {
+  width: 180px;
+  flex-shrink: 0;
+  background: #fff;
+  border-right: 1px solid #f0f0f0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.wf-palette__title {
+  padding: 14px 14px 10px;
+  font-weight: 700;
+  font-size: 13px;
+  color: #1a1a2e;
+  border-bottom: 1px solid #f0f0f0;
+  letter-spacing: 0.3px;
+  flex-shrink: 0;
+}
+
+.wf-palette__group {
+  padding: 8px 0 4px;
+}
+
+.wf-palette__group-label {
+  padding: 2px 14px 6px;
+  font-size: 11px;
+  color: #bbb;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.wf-palette__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  cursor: grab;
+  border-radius: 0;
+  transition: background 0.15s;
+  position: relative;
+  border-left: 3px solid transparent;
+}
+
+.wf-palette__item:hover {
+  background: #f5f7ff;
+  border-left-color: var(--item-color, #1677ff);
+}
+
+.wf-palette__item:active {
+  cursor: grabbing;
+}
+
+.wf-palette__item-icon {
+  color: var(--item-color, #1677ff);
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.wf-palette__item-label {
+  font-size: 13px;
+  color: #333;
+  flex: 1;
+}
+
+.wf-palette__item-plus {
+  font-size: 10px;
+  color: #ccc;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.wf-palette__item:hover .wf-palette__item-plus {
+  opacity: 1;
+}
+
+/* ─────────────── 中央画布 ─────────────── */
+.wf-canvas {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ─────────────── 工具栏 ─────────────── */
+.wf-toolbar {
+  display: flex;
+  gap: 6px;
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  padding: 6px 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* ─────────────── 自定义节点 ─────────────── */
+.wf-node {
+  background: #fff;
+  border: 2px solid var(--node-color, #d9d9d9);
+  border-radius: 10px;
+  min-width: 140px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.2s, transform 0.15s;
+  overflow: visible;
+  cursor: default;
+}
+
+.wf-node:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+.wf-node--selected {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--node-color) 30%, transparent),
+              0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.wf-node__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px 8px;
+  border-bottom: 1px solid color-mix(in srgb, var(--node-color) 15%, transparent);
+  background: color-mix(in srgb, var(--node-color) 8%, #fff);
+  border-radius: 8px 8px 0 0;
+}
+
+.wf-node__icon {
+  color: var(--node-color, #1677ff);
+  font-size: 14px;
+}
+
+.wf-node__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a2e;
+  flex: 1;
+}
+
+.wf-node__running-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--node-color, #1677ff);
+  animation: pulse-dot 0.8s infinite alternate;
+  flex-shrink: 0;
+}
+
+@keyframes pulse-dot {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0.4; transform: scale(1.4); }
+}
+
+.wf-node__desc {
+  padding: 6px 14px 10px;
+  font-size: 11px;
+  color: #999;
+  line-height: 1.4;
+}
+
+/* ─────────────── Handles ─────────────── */
+.wf-handle {
+  width: 10px !important;
+  height: 10px !important;
+  background: var(--node-color, #1677ff) !important;
+  border: 2px solid #fff !important;
+  box-shadow: 0 0 0 1px var(--node-color, #1677ff) !important;
+  transition: transform 0.15s !important;
+}
+
+.wf-handle:hover {
+  transform: scale(1.4) !important;
+}
+
+.wf-handle--target {
+  left: -6px !important;
+}
+
+.wf-handle--source {
+  right: -6px !important;
+}
+
+/* ─────────────── 右侧属性面板 ─────────────── */
+.wf-sidebar {
+  width: 0;
+  overflow: hidden;
+  background: #fff;
+  border-left: 1px solid #f0f0f0;
+  transition: width 0.22s ease;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.wf-sidebar--open {
+  width: 280px;
+}
+
+.wf-sidebar__header {
+  padding: 14px 16px 10px;
+  font-weight: 700;
+  font-size: 13px;
+  color: #1a1a2e;
+  border-bottom: 1px solid #f0f0f0;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.wf-config {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 16px;
+}
+
+.wf-config--empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+}
+
+.wf-config__header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f0f0f0;
+  margin-bottom: 12px;
+}
+
+.wf-field {
+  margin-bottom: 12px;
+}
+
+.wf-field label {
+  display: block;
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+/* ─────────────── HTTP 节点测试结果 ─────────────── */
+.wf-http-result {
+  background: #fafafa;
+  border: 1px solid #f0f0f0;
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.wf-http-result__status {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 15px;
+  margin-bottom: 6px;
+}
+
+.wf-http-result__label {
+  font-size: 11px;
+  color: #aaa;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin: 8px 0 3px;
+}
+
+.wf-http-result__body {
+  background: #f5f5f5;
+  border: 1px solid #ebebeb;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 11px;
+  font-family: monospace;
+  max-height: 160px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin: 0;
+  color: #333;
+}
+
+/* ─────────────── 执行结果面板 ─────────────── */
+.wf-result {
+  display: flex;
+  gap: 16px;
+  height: 100%;
+  overflow: hidden;
+}
+
+.wf-result__section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.wf-result__label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.wf-result__pre {
+  flex: 1;
+  background: #f5f5f5;
+  border: 1px solid #ebebeb;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-family: monospace;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin: 0;
+  color: #333;
+  max-height: 300px;
+}
+
+.wf-result__logs {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 300px;
+}
+
+.wf-result__log-line {
+  font-size: 12px;
+  font-family: monospace;
+  color: #555;
+  padding: 2px 0;
+  line-height: 1.6;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+/* ─────────────── React Flow 覆盖 ─────────────── */
+/* 清除 ReactFlow 默认节点包装层的所有样式，避免和自定义节点样式冲突 */
+.react-flow__node {
+  border: none !important;
+  outline: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* 禁用 ReactFlow 选中节点时自动加的 outline/ring，改用 .wf-node--selected 的 box-shadow 表现 */
+.react-flow__node.selected,
+.react-flow__node.selected:focus,
+.react-flow__node.selected:focus-visible,
+.react-flow__node:focus,
+.react-flow__node:focus-visible {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.react-flow__edge-path {
+  stroke-width: 2;
+}
+
+.react-flow__connection-line {
+  stroke: #1677ff;
+  stroke-width: 2;
+}
