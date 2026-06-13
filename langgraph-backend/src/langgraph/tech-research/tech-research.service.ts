@@ -58,12 +58,6 @@ export class TechResearchService implements OnModuleInit {
     private llm!: ChatOllama
 
     onModuleInit() {
-        // this.llm = new ChatOpenAI({
-        //     model: config.langGraph.model,
-        //     apiKey: config.langGraph.apiKey,
-        //     configuration: { baseURL: config.langGraph.baseURL },
-        //     temperature: 0.5,
-        // })
         // 创建 chatOllama 实例
         this.llm = new ChatOllama({
             model: config.langGraph.model, // Ollama 模型名称

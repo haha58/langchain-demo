@@ -54,7 +54,7 @@ export interface GraphEdge {
 interface WorkflowGraphProps {
   nodes: GraphNode[]                            // 节点数组
   edges: GraphEdge[]                            // 边数组
-  running?: string                              // 当前正在运行的节点ID（可选）
+  running?: string | string[]                   // 当前正在运行的节点ID（可选）
 }
 
 // 自定义节点组件
@@ -170,12 +170,14 @@ export default function WorkflowGraph({
 
   // Effect 2: 当running节点变化时，只更新节点状态，不重建边（保留用户手动连接的线）
   useEffect(() => {
+    const runningIds = new Set(Array.isArray(running) ? running : running ? [running] : [])
+
     setNodes((nds: Node[]) =>
       nds.map((n: Node) => ({
         ...n,                                    // 保留节点其他属性
         data: {                                  // 更新data字段
           ...(n.data as Record<string, unknown>), // 保留原有data
-          status: running === n.id ? 'running' : 'idle', // 更新状态：当前运行节点为'running'，其他为'idle'
+          status: runningIds.has(n.id) ? 'running' : 'idle', // 更新状态：当前运行节点为'running'，其他为'idle'
         },
       }))
     )

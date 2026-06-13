@@ -5,6 +5,45 @@ const http = axios.create({
   timeout: 120_000,
 })
 
+const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:3000/api'
+
+const readSSEStream = async (
+  response: Response,
+  onEvent: (event: any) => void
+) => {
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`)
+  }
+
+  const reader = response.body?.getReader()
+  if (!reader) {
+    throw new Error('当前浏览器不支持流式响应')
+  }
+
+  const decoder = new TextDecoder()
+  let buffer = ''
+
+  while (true) {
+    const { value, done } = await reader.read()
+    if (done) break
+
+    buffer += decoder.decode(value, { stream: true })
+    const chunks = buffer.split('\n\n')
+    buffer = chunks.pop() ?? ''
+
+    chunks.forEach((chunk) => {
+      const data = chunk
+        .split('\n')
+        .filter((line) => line.startsWith('data:'))
+        .map((line) => line.slice(5).trimStart())
+        .join('\n')
+
+      if (!data) return
+      onEvent(JSON.parse(data))
+    })
+  }
+}
+
 // ── 文档一：对话记忆 ──────────────────────────────────
 export const chatAPI = {
   sendMemory: (threadId: string, message: string) =>
@@ -35,6 +74,18 @@ export const workflowAPI = {
     http.post('/langgraph/pipeline', { topic }),
   codeReview: (code: string, language = 'TypeScript') =>
     http.post('/langgraph/code-review', { code, language }),
+  codeReviewStream: async (
+    code: string,
+    language = 'TypeScript',
+    onEvent: (event: any) => void
+  ) => {
+    const response = await fetch(`${API_BASE_URL}/langgraph/code-review/stream`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, language }),
+    })
+    await readSSEStream(response, onEvent)
+  },
 }
 
 // ── 文档四：邮件审批 ──────────────────────────────────

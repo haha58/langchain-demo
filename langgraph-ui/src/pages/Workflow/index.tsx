@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Tabs, Input, Button, Card, Tag, List, Space } from 'antd'
+import { Tabs, Input, Button, Card, Tag, List, Space, message } from 'antd'
 import { PlayCircleOutlined, LoadingOutlined } from '@ant-design/icons'
 import WorkflowGraph, { GraphNode, GraphEdge } from '../../components/WorkflowGraph'
 import { workflowAPI } from '../../api'
@@ -46,21 +46,22 @@ const CODE_REVIEW_EDGES: GraphEdge[] = [
 ]
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+const MIN_NODE_VISIBLE_MS = 250
 
 export default function WorkflowPage() {
   const [tab,     setTab]     = useState('supervisor')
   const [input,   setInput]   = useState('')
   const [code,    setCode]    = useState('')
-  const [running, setRunning] = useState('')
+  const [running, setRunning] = useState<string[]>([])
   const [result,  setResult]  = useState<any>(null)
   const [loading, setLoading] = useState(false)
 
   const animateNodes = async (ids: string[], delay = 700) => {
     for (const id of ids) {
-      setRunning(id)
+      setRunning([id])
       await sleep(delay)
     }
-    setRunning('')
+    setRunning([])
   }
 
   const runSupervisor = async () => {
@@ -83,11 +84,58 @@ export default function WorkflowPage() {
     if (!code.trim() || loading) return
     setLoading(true)
     setResult(null)
-    animateNodes(['start','dispatch','security','perf','style','report','end'], 500)
     try {
-      const res = await workflowAPI.codeReview(code)
-      setResult(res.data)
+      const activeNodes = new Set<string>()
+      const eventQueue: any[] = []
+      let processPromise: Promise<void> | null = null
+
+      const processEventQueue = async () => {
+        while (eventQueue.length > 0) {
+          const event = eventQueue.shift()
+
+          if (event.type === 'node_start') {
+            await Promise.resolve()
+
+            const startedTogether = [event]
+            while (eventQueue[0]?.type === 'node_start') {
+              startedTogether.push(eventQueue.shift())
+            }
+
+            startedTogether.forEach((item) => activeNodes.add(item.nodeId))
+            setRunning(Array.from(activeNodes))
+            await sleep(MIN_NODE_VISIBLE_MS)
+          }
+
+          if (event.type === 'node_end') {
+            activeNodes.delete(event.nodeId)
+            setRunning(Array.from(activeNodes))
+          }
+
+          if (event.type === 'result') {
+            setResult(event.result)
+          }
+
+          if (event.type === 'error') {
+            message.error(event.message || '代码审查失败')
+          }
+        }
+      }
+
+      const enqueueStreamEvent = (event: any) => {
+        eventQueue.push(event)
+        if (!processPromise) {
+          processPromise = processEventQueue().finally(() => {
+            processPromise = null
+          })
+        }
+      }
+
+      await workflowAPI.codeReviewStream(code, 'TypeScript', (event) => {
+        enqueueStreamEvent(event)
+      })
+      await processPromise
     } finally {
+      setRunning([])
       setLoading(false)
     }
   }
@@ -119,9 +167,9 @@ export default function WorkflowPage() {
           }}
         >
           <span style={{ fontWeight: 600, fontSize: 14 }}>工作流图</span>
-          {running && (
+          {running.length > 0 && (
             <Tag color="processing" icon={<LoadingOutlined spin />}>
-              当前节点：{running}
+              当前节点：{running.join(' / ')}
             </Tag>
           )}
         </div>

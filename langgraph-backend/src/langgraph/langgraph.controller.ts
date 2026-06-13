@@ -1,4 +1,5 @@
-import { Controller, Post, Get, Body, Param } from '@nestjs/common'
+import { Controller, Post, Get, Body, Param, Res } from '@nestjs/common'
+import type { Response } from 'express'
 import { LanggraphService }     from './langgraph.service'
 import { ArticleService }       from './article.service'
 import { ReactAgentService }    from './react-agent.service'
@@ -81,6 +82,33 @@ export class LanggraphController {
   @Post('code-review')
   codeReview(@Body() body: { code: string; language?: string }) {
     return this.codeReviewSvc.review(body.code, body.language)
+  }
+
+  @Post('code-review/stream')
+  async codeReviewStream(
+    @Body() body: { code: string; language?: string },
+    @Res() res: Response,
+  ) {
+    res.setHeader('Content-Type', 'text/event-stream; charset=utf-8')
+    res.setHeader('Cache-Control', 'no-cache, no-transform')
+    res.setHeader('Connection', 'keep-alive')
+    res.flushHeaders?.()
+
+    const send = (event: unknown) => {
+      res.write(`data: ${JSON.stringify(event)}\n\n`)
+    }
+
+    try {
+      await this.codeReviewSvc.reviewStream(body.code, body.language, send)
+    } catch (error) {
+      send({
+        type: 'error',
+        message: error instanceof Error ? error.message : '代码审查失败',
+        timestamp: Date.now(),
+      })
+    } finally {
+      res.end()
+    }
   }
 
   // ── 文档四 ─────────────────────────────────────────
